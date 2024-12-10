@@ -2,67 +2,81 @@
 import re
 
 # %%
-#input_text = "2333133121414131402"
+input_text = "2333133121414131402"
 
 # %%
-def get_files_block(size: int, value: int) -> str:
-    result =  "".join([str(value) for element in range(size)])
-    return result
+def get_files_block(size: int, value: int) -> list:
+    return ([str(value) for element in range(size)])
 
 def get_free_block(size: int) -> str:
-    result = "".join(["." for element in range(size)])
-    return result
+    return (["." for element in range(size)])
 
-# %%
-def generate_disc(input_text: str) -> str:
-    disc = ""
+def generate_disc(input_text: str) -> list:
+    disc = []
     id = 0
     for i, value in enumerate(input_text):
         if i % 2 == 0:
             element = get_files_block(size=int(value), value=id)
-            disc = disc + element
+            disc.extend(element)
             id = id + 1
         else:
             element = get_free_block(size=int(value))
-            disc = disc + element
+            disc.extend(element)
     return disc
 
 # %%
-def replace_two_elements(disc: str, id1: int, id2: int) -> str:
+def replace_two_elements(disc: list, id1: int, id2: int) -> list:
 
-    disc = [element for element in disc]
     disc[id1] = disc[id2]
     disc[id2] = "."
-    disc = "".join(disc)
     return disc
 
-# %%
-def move_file_blocks(disc: str) -> str:
-    while True:
-        result = re.search(r"[.]", disc)
-        result2 = re.search(r"[0-9]", disc[::-1])
-        last_num_id = len(disc) - result2.start() -1 
-        if last_num_id < result.start():
-            break
-        disc = replace_two_elements(disc, result.start(), last_num_id)
-    return disc
+def get_last_number(disc: list)-> int:
 
-# %%
-def get_control_sum(text: str) -> int:
-    sum = 0
-    for id, element in enumerate(text):
+    result = 0
+    for id, element in enumerate(disc):
         try:
-            sum = sum + int(element)*id
+            value = int(element)
+            result = id
         except:
-            pass 
+            pass
+    return result
+
+def move_file_blocks(disc: list) -> list:
+    while True:
+        print("Disc:", end=" ")
+        to_print = "".join(disc)
+        print(to_print)
+        result = disc.index(".")
+        last_num_id = get_last_number(disc)
+        if last_num_id < result:
+            break
+        disc = replace_two_elements(disc, result, last_num_id)
+    return disc
+
+def get_control_sum(text: list) -> int:
+    sum = 0
+    with open("SumControl.txt", "w") as file:
+        for id, element in enumerate(text):
+            try:
+                sum = sum + int(element)*id
+                file.write(str(id) + " * " + element + " = " + str(sum) + "\n")
+            except:
+                pass 
     return sum
 
 # %%
 input_text = input()
+print("Calculating")
 disc = generate_disc(input_text=input_text)
+with open("disc.txt", "w") as file:
+    to_file = "".join(disc)
+    file.write(to_file)
+
 disc = move_file_blocks(disc=disc)
+print("Control sum....")
 result = get_control_sum(disc)
-print(result)
+print("Result: " + str(result))
 
 # %%
 
